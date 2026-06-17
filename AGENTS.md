@@ -1,19 +1,19 @@
 # AGENTS.md — Rules for AI agents
 
 ## Project
-EPAM scraper for peviitor.ro (Node.js, ESM, Jest)
+Talent Matchmakers scraper for peviitor.ro (Node.js, ESM, Jest)
 
-## 📐 This Repo Is a Template
-This repo is the **reference implementation** for all Node.js scrapers in the peviitor.ro ecosystem. Other scrapers are derived from it. When making changes:
-- **All company-specific identity lives in `config/company.json`** (CIF, brand, legalName, URLs, API params). Read from `config/company.js` in Node code, or via `jq` in workflows. Never hardcode in source files.
-- **Only the API parsing logic in `index.js`** (`fetchJobsPage`, `parseApiJobs`) is EPAM-specific. The output shape (`mapToJobModel`, `transformJobsForSOLR`) must stay uniform across derived scrapers.
-- **If you add a new file, update [CONTRIBUTING.md](CONTRIBUTING.md)** — the derivation checklist must stay accurate.
+## 🌱 This Repo Is a Derived Scraper
+This repo is **derived from** [job_seeker_ro_spider](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper) — the EPAM template that is the reference implementation for the peviitor.ro ecosystem. When making changes:
+- **All company-specific identity lives in `config/company.json`** (CIF, brand, legalName, URLs). Read from `config/company.js` in Node code, or via `jq` in workflows. Never hardcode in source files.
+- **The Talent Matchmakers-specific scraping logic is in `index.js`** (`fetchJobsHtml`, `parseHtmlJobs`). Uses Teamtailor HTML + cheerio (no API), single-page. The output shape (`mapToJobModel`, `transformJobsForSOLR`) is inherited from the template and must NOT change — that's what keeps SOLR uniform across derived scrapers.
+- **Structural changes** (pipeline, caching, tests architecture) should be discussed upstream in the EPAM template repo first, so all derivatives benefit.
 
 ## Critical Rules
 
 ### 1. Temporary Files
 All temporary/scratch files MUST go in `tmp/` inside the project root.
-NEVER use paths outside the project (e.g. `C:\Users\...\AppData\Local\Temp\opencode`).
+NEVER use paths outside the project.
 
 ### 2. Issues & GitHub
 - **Orice modificare de cod trebuie să aibă un issue în GitHub Issues** (vezi [ISSUES.md](ISSUES.md))
@@ -39,7 +39,7 @@ npm run test:unit
 # Integration tests (ANAF public API, SOLR conditional)
 npm run test:integration
 
-# E2E tests (real EPAM API, SOLR conditional)
+# E2E tests (real Talent Matchmakers website, SOLR conditional)
 npm run test:e2e
 
 # Consistency tests (GitHub repo config — needs GITHUB_REPOSITORY + GITHUB_TOKEN)
@@ -65,7 +65,7 @@ npm run test:consistency
 - `company.js` — company validation (ANAF + Peviitor + SOLR); root `company.json` is a 7-day ANAF cache committed to repo, with stale fallback
 - `solr.js` — SOLR operations
 - `validate-jobs.js` — manual deep validator (content-aware); thin wrapper over src/job-validator.js
-- `tests/validate-epam-jobs.js` — CI fast validator (HEAD only); thin wrapper over src/job-validator.js + solr.js
+- `tests/validate-talent-matchmakers-jobs.js` — CI fast validator (HEAD only); thin wrapper over src/job-validator.js + solr.js
 - `index.js` — main scraper orchestrator
 
 ### 8. Caching Behavior

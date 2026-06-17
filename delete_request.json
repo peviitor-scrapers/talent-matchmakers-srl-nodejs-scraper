@@ -1,1 +1,5 @@
-{"delete": {"query": "cif:33159615"}}
+{
+  "delete": {
+    "query": "cif:38460545"
+  }
+}

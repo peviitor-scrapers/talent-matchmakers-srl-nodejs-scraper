@@ -1,58 +1,43 @@
-# Robots.txt Analysis — EPAM Careers
+# Robots.txt Analysis — Talent Matchmakers Careers (Teamtailor)
 
-Sursa: https://careers.epam.com/robots.txt
+Sursa: https://jobs.talentmatchmakers.co/robots.txt
 
 ## Reguli
 
 ```
-User-agent: LinkedInBot
-Allow: /
+User-agent: aihitdata
+Disallow: /
 
 User-agent: *
-Disallow: /en/application
-Disallow: /ru/application
-Disallow: /api
-Disallow: /api/*
-Disallow: /*?skill*
-Disallow: /*?search*
-Disallow: /*?query*
-Disallow: /*?specialization*
-Disallow: /*?utm*
-Disallow: /none
-Disallow: /*?ref*
-Disallow: /*?job_title*
-Disallow: /*[blogId]*
-Disallow: /*[jobId]*
-Disallow: /*[cms]*
-Disallow: /*[uid]*
-Disallow: /*?page*
-Disallow: /*?gclid*
-Disallow: /blog
-Disallow: /blog/*
-Disallow: /*/vacancy/*
-Disallow: /ai-interviewer
-Disallow: /ai-interviewer/*
+Disallow: /app/
+Disallow: /messages/
+Disallow: /messenger/
+Disallow: /facebook/tab/
+Disallow: /jobs/internal/
+Content-Signal: search=yes, ai-train=no, ai-input=yes
+
+Sitemap: https://jobs.talentmatchmakers.co/sitemap.xml
 ```
 
 ## Interpretare
 
 | Cale | Accesibil? | Ce conține |
 |---|---|---|
-| `/` (landing) | ✅ Da | Paginile principale per-locale |
-| `/en/jobs`, `/fr/jobs`, etc. | ✅ Da | Listări de job-uri (front-end) |
-| `/api/*` | ❌ **Disallowed** | API-ul JSON de la care scraper-ul nostru extrage datele |
-| `/*/vacancy/*` | ❌ **Disallowed** | Paginile individuale de job |
-| `/en/application` | ❌ Disallowed | Pagina de aplicare |
-| `/blog/*` | ❌ Disallowed | Blogul |
-| `/ai-interviewer/*` | ❌ Disallowed | Intervievator AI |
+| `/` | ✅ Da (pentru `*`) | Landing page |
+| `/jobs/` | ✅ Da | Listări de job-uri — pagina pe care scraper-ul o accesează |
+| `/jobs/{id}-{slug}` | ✅ Da | Paginile individuale de job |
+| `/app/*` | ❌ Disallowed | Aplicația internă |
+| `/messages/*` | ❌ Disallowed | Mesaje |
+| `/jobs/internal/*` | ❌ Disallowed | Job-uri interne |
+| `/` | ❌ **Disallowed** (pentru `aihitdata`) | Bot-ul aihitdata e complet blocat |
 
 ## Recomandare
 
 robots.txt NU este legal binding, dar reprezintă intenția proprietarului site-ului.
 
-- API-ul `/api/jobs/v2/search/...` e **disallowed** de robots.txt. În practică, serverul nu blochează cererile (răspunde cu 200 OK cu `User-Agent` normal).
-- Paginile individuale de job (`/en/vacancy/...`) sunt și ele disallowed. Noi nu le scraper-uim direct — doar le verificăm accesibilitatea (HEAD request) în E2E tests.
-- Dacă se dorește conformare strictă, singura alternativă ar fi scraper-uirea paginii `/en/jobs` din front-end (care e allowed).
-- Scraperul curent face o singură cerere per pagină (10 job-uri) cu delay de 1s între pagini — comportament rezonabil, nu agresiv.
+- Căile `/jobs/` sunt **permise** pentru toți user-agent-ii obișnuiți — scraperul nostru este compliant.
+- Paginile individuale de job (`/jobs/{id}-{slug}`) sunt și ele permise. Noi le verificăm accesibilitatea (HEAD request) în E2E tests.
+- Scraperul curent face o singură cerere per pagină, cu delay rezonabil — comportament politicos.
+- Sitemap-ul XML disponibil la `https://jobs.talentmatchmakers.co/sitemap.xml` poate fi folosit pentru descoperirea completă a job-urilor.
 
-**Concluzie**: Risc minim. API-ul e public, răspunde fără autentificare, iar scraperul e politicos (rate limiting, User-Agent standard, o singură cerere simultană).
+**Concluzie**: Risc minim. Site-ul e public, răspunde fără autentificare, iar scraperul e politicos (rate limiting, User-Agent standard `job_seeker_ro_spider`, o singură cerere simultană).
