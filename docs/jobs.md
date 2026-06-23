@@ -10,11 +10,18 @@
 | Location | Cluj-Napoca, Jud. Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-06-22 |
+| Last Scraped | 2026-06-23 |
 
-## Current Job Listings (4)
+## Current Job Listings (5)
 
-_Generated: 2026-06-22T12:12:45.778Z_
+_Generated: 2026-06-23T09:50:31.002Z_
+
+### SENIOR NODE.JS DEVELOPER
+
+- **URL:** [https://jobs.talentmatchmakers.co/jobs/7950363-senior-node-js-developer](https://jobs.talentmatchmakers.co/jobs/7950363-senior-node-js-developer)
+- **Work Mode:** hybrid
+- **Location:** România
+- **Status:** scraped
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
 
