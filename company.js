@@ -278,10 +278,21 @@ export async function getCompanyData() {
     throw err;
   }
 
-  if (!anafData) {
-    throw new Error("No data from ANAF - cannot proceed with scraping");
-  }
-  if (!anafData.name) {
+  if (!anafData || !anafData.name) {
+    if (cachedData?._stale) {
+      const reason = !anafData ? "ANAF returned no data" : "ANAF returned no company name";
+      console.log(`⚠️ ${reason} — falling back to stale cache`);
+      const a = cachedData.anaf;
+      return {
+        company: a.name.toUpperCase(),
+        cif: a.cui.toString(),
+        active: !a.inactive,
+        anafData: a
+      };
+    }
+    if (!anafData) {
+      throw new Error("No data from ANAF - cannot proceed with scraping");
+    }
     throw new Error("ANAF returned no company name - cannot proceed with scraping");
   }
 

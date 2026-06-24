@@ -119,6 +119,16 @@ describe('company.js', () => {
       }
     };
 
+    const staleCachedData = {
+      validatedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+      anaf: TM_ANAF_RECORD,
+      summary: {
+        company: 'TALENT MATCHMAKERS S.R.L.',
+        cif: '38460545',
+        active: true
+      }
+    };
+
     beforeEach(() => {
       fs.writeFileSync(COMPANY_JSON_PATH, JSON.stringify(cachedData), 'utf-8');
     });
@@ -130,6 +140,37 @@ describe('company.js', () => {
       expect(result.cif).toBe('38460545');
       expect(result.active).toBe(true);
       expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to stale cache when ANAF returns no data', async () => {
+      clearAllCaches();
+      fs.writeFileSync(ROOT_COMPANY_JSON_PATH, JSON.stringify(staleCachedData), 'utf-8');
+      mockFetch.mockResolvedValueOnce(anafCompanyResponse(null));
+
+      const result = await company.getCompanyData();
+
+      expect(result.company).toBe('TALENT MATCHMAKERS S.R.L.');
+      expect(result.cif).toBe('38460545');
+      expect(result.active).toBe(true);
+    });
+
+    it('should fall back to stale cache when ANAF returns no company name', async () => {
+      clearAllCaches();
+      fs.writeFileSync(ROOT_COMPANY_JSON_PATH, JSON.stringify(staleCachedData), 'utf-8');
+      mockFetch.mockResolvedValueOnce(anafCompanyResponse({ cui: 38460545, name: null }));
+
+      const result = await company.getCompanyData();
+
+      expect(result.company).toBe('TALENT MATCHMAKERS S.R.L.');
+      expect(result.cif).toBe('38460545');
+      expect(result.active).toBe(true);
+    });
+
+    it('should throw when ANAF returns no data and no stale cache exists', async () => {
+      clearAllCaches();
+      mockFetch.mockResolvedValueOnce(anafCompanyResponse(null));
+
+      await expect(company.getCompanyData()).rejects.toThrow('No data from ANAF');
     });
   });
 
