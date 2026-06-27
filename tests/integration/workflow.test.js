@@ -96,7 +96,7 @@ describe('Integration: API Workflow', () => {
       expect(result.numFound).toBe(1);
       const company = result.docs[0];
       expect(company.id).toBe(TM_CIF);
-      expect(company.company).toBe('TALENT MATCHMAKERS SRL');
+      expect(company.company).toBe('TALENT MATCHMAKERS S.R.L.');
       expect(company.brand).toBe('TALENT MATCHMAKERS');
       expect(company.status).toBe('activ');
       expect(Array.isArray(company.location)).toBe(true);
