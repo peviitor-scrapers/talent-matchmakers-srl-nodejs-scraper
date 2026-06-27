@@ -90,13 +90,13 @@ describe('solr.js', () => {
   describe('queryCompanySOLR', () => {
     it('should return company data', async () => {
       mockFetch.mockResolvedValue(makeSolrResponse(1, [
-        { id: '38460545', company: 'TALENT MATCHMAKERS S.R.L.', brand: 'Talent Matchmakers' }
+        { id: '38460545', company: 'TALENT MATCHMAKERS S.R.L.', brand: 'TALENT MATCHMAKERS' }
       ]));
 
       const result = await solr.queryCompanySOLR('id:38460545');
 
       expect(result.numFound).toBe(1);
-      expect(result.docs[0].brand).toBe('Talent Matchmakers');
+      expect(result.docs[0].brand).toBe('TALENT MATCHMAKERS');
       expect(result.docs[0].company).toBe('TALENT MATCHMAKERS S.R.L.');
     });
 
