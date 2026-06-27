@@ -209,7 +209,7 @@ describe('E2E: Full Scraping Pipeline', () => {
 
       expect(result.numFound).toBe(1);
       const company = result.docs[0];
-      expect(company.company).toBe('TALENT MATCHMAKERS SRL');
+      expect(company.company).toBe('TALENT MATCHMAKERS S.R.L.');
       expect(company.status).toBe('activ');
     }, 15000);
   });
