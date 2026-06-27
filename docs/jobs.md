@@ -5,16 +5,16 @@
 | Field | Value |
 |-------|-------|
 | CIF | 38460545 |
-| Brand | Talent Matchmakers |
+| Brand | TALENT MATCHMAKERS |
 | Status | activ |
 | Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-06-26 |
+| Last Scraped | 2026-06-27 |
 
 ## Current Job Listings (4)
 
-_Generated: 2026-06-26T09:34:56.331Z_
+_Generated: 2026-06-27T10:24:06.488Z_
 
 ### SENIOR NODE.JS DEVELOPER
 
