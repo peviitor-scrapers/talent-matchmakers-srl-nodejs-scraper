@@ -15,6 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install
+
       - name: Restore company in SOLR company core
         env:
           SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
