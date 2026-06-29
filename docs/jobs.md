@@ -10,11 +10,11 @@
 | Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-06-28 |
+| Last Scraped | 2026-06-29 |
 
 ## Current Job Listings (4)
 
-_Generated: 2026-06-28T09:17:02.497Z_
+_Generated: 2026-06-29T11:08:19.011Z_
 
 ### SENIOR NODE.JS DEVELOPER
 
