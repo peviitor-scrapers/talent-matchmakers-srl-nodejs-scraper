@@ -10,11 +10,18 @@
 | Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-06-29 |
+| Last Scraped | 2026-07-05 |
 
-## Current Job Listings (4)
+## Current Job Listings (5)
 
-_Generated: 2026-06-29T11:08:19.011Z_
+_Generated: 2026-07-05T08:59:05.340Z_
+
+### TECHNICAL DELIVERY MANAGER
+
+- **URL:** [https://jobs.talentmatchmakers.co/jobs/8015297-technical-delivery-manager](https://jobs.talentmatchmakers.co/jobs/8015297-technical-delivery-manager)
+- **Work Mode:** hybrid
+- **Location:** Timisoara
+- **Status:** scraped
 
 ### SENIOR NODE.JS DEVELOPER
 
