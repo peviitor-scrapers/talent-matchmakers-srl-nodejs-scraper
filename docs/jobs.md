@@ -10,11 +10,11 @@
 | Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-07-06 |
+| Last Scraped | 2026-07-07 |
 
 ## Current Job Listings (5)
 
-_Generated: 2026-07-06T10:45:01.454Z_
+_Generated: 2026-07-07T09:49:51.788Z_
 
 ### TECHNICAL DELIVERY MANAGER
 
