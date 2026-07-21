@@ -10,24 +10,17 @@
 | Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-07-20 |
+| Last Scraped | 2026-07-21 |
 
-## Current Job Listings (5)
+## Current Job Listings (3)
 
-_Generated: 2026-07-20T09:22:04.188Z_
+_Generated: 2026-07-21T08:35:19.216Z_
 
 ### TECHNICAL DELIVERY MANAGER
 
 - **URL:** [https://jobs.talentmatchmakers.co/jobs/8015297-technical-delivery-manager](https://jobs.talentmatchmakers.co/jobs/8015297-technical-delivery-manager)
 - **Work Mode:** hybrid
 - **Location:** Timisoara
-- **Status:** scraped
-
-### SENIOR NODE.JS DEVELOPER
-
-- **URL:** [https://jobs.talentmatchmakers.co/jobs/7950363-senior-node-js-developer](https://jobs.talentmatchmakers.co/jobs/7950363-senior-node-js-developer)
-- **Work Mode:** hybrid
-- **Location:** România
 - **Status:** scraped
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
@@ -42,11 +35,4 @@ _Generated: 2026-07-20T09:22:04.188Z_
 - **URL:** [https://jobs.talentmatchmakers.co/jobs/7836682-mid-java-developer](https://jobs.talentmatchmakers.co/jobs/7836682-mid-java-developer)
 - **Work Mode:** hybrid
 - **Location:** România
-- **Status:** scraped
-
-### STAFF ENGINEER/ARCHITECT (.NET/JAVA)
-
-- **URL:** [https://jobs.talentmatchmakers.co/jobs/7649718-staff-engineer-architect-net-java](https://jobs.talentmatchmakers.co/jobs/7649718-staff-engineer-architect-net-java)
-- **Work Mode:** hybrid
-- **Location:** Cluj-Napoca
 - **Status:** scraped
