@@ -10,18 +10,11 @@
 | Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-07-21 |
+| Last Scraped | 2026-07-22 |
 
-## Current Job Listings (3)
+## Current Job Listings (2)
 
-_Generated: 2026-07-21T08:35:19.216Z_
-
-### TECHNICAL DELIVERY MANAGER
-
-- **URL:** [https://jobs.talentmatchmakers.co/jobs/8015297-technical-delivery-manager](https://jobs.talentmatchmakers.co/jobs/8015297-technical-delivery-manager)
-- **Work Mode:** hybrid
-- **Location:** Timisoara
-- **Status:** scraped
+_Generated: 2026-07-22T08:34:46.205Z_
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
 
