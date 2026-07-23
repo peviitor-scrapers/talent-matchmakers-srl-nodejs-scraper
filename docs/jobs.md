@@ -10,11 +10,11 @@
 | Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-07-22 |
+| Last Scraped | 2026-07-23 |
 
 ## Current Job Listings (2)
 
-_Generated: 2026-07-22T08:34:46.205Z_
+_Generated: 2026-07-23T08:36:21.329Z_
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
 
