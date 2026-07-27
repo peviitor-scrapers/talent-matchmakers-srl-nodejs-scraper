@@ -3,8 +3,8 @@ import { validateByHead, validateByContent } from './scraper/job-validator.js';
 import { querySOLR, upsertJobs } from './scraper/api.js';
 
 const companyConfig = JSON.parse(readFileSync('scraper/config/company.json', 'utf8'));
-const { cif: CIF } = companyConfig;
-const COMPANY = 'TALENT MATCHMAKERS S.R.L.';
+const CIF = companyConfig.id;
+const COMPANY = companyConfig.company;
 const SOLR_AUTH = process.env.SOLR_AUTH;
 
 async function getJobsByCIF(cif) {
