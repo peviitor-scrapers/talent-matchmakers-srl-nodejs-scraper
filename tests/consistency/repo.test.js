@@ -1,106 +1,54 @@
-import fetch from "node-fetch";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { existsSync, readdirSync, readFileSync } from 'fs';
+import path from 'path';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO = process.env.GITHUB_REPOSITORY;
-const TOKEN = process.env.GITHUB_TOKEN;
-const SCRAPER_YML = ".github/workflows/job-seeker-ro-spider.yml";
+describe('Consistency Tests', () => {
+  const root = process.cwd();
 
-
-function repoUrl(apiPath) {
-  return `https://api.github.com/repos/${REPO}${apiPath}`;
-}
-
-async function ghFetch(url) {
-  const headers = { Accept: "application/vnd.github.v3+json", "User-Agent": "jest-test" };
-  if (TOKEN) headers.Authorization = `token ${TOKEN}`;
-  const res = await fetch(url, { headers });
-  return res;
-}
-
-function skipIfNoRepo() {
-  if (!REPO) {
-    console.log("GITHUB_REPOSITORY not set — running locally, skipping API check");
-    return true;
-  }
-  return false;
-}
-
-describe("Repository Configuration", () => {
-  describe("default branch", () => {
-    it("must be main", async () => {
-      if (skipIfNoRepo()) return;
-      const res = await ghFetch(repoUrl(""));
-      expect(res.ok).toBe(true);
-      const data = await res.json();
-      expect(data.default_branch).toBe("main");
-      console.log(`✅ Default branch: ${data.default_branch}`);
-    });
+  test('README.md exists', () => {
+    expect(existsSync(path.join(root, 'README.md'))).toBe(true);
   });
 
-  describe("GitHub Pages", () => {
-    it("must have GitHub Pages URL set in About", async () => {
-      if (skipIfNoRepo()) return;
-      const res = await ghFetch(repoUrl(""));
-      expect(res.ok).toBe(true);
-      const data = await res.json();
-      expect(data.homepage).toBeTruthy();
-      expect(data.homepage).toMatch(/^https?:\/\//);
-      console.log(`✅ GitHub Pages URL: ${data.homepage}`);
-    });
-
-    // deploy.yml removed — legacy GitHub Pages auto-deploys from docs/
+  test('package.json exists with correct main', () => {
+    const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+    expect(pkg.main).toBe('scraper/index.js');
+    expect(pkg.scripts.scrape).toContain('scraper/index.js');
   });
 
-  describe("hosted HTML page", () => {
-    it("must serve valid HTML from GitHub Pages", async () => {
-      if (!REPO) {
-        console.log("GITHUB_REPOSITORY not set — running locally, skipping API check");
-        return;
-      }
-
-      const owner = REPO.split("/")[0];
-      const repoName = REPO.split("/")[1];
-      const pagesUrl = `https://${owner}.github.io/${repoName}/`;
-
-      const res = await fetch(pagesUrl, {
-        headers: { "User-Agent": "jest-test" },
-      });
-      if (!res.ok) {
-        console.log(`⚠️ GitHub Pages returned ${res.status} — may not be deployed yet`);
-        return;
-      }
-
-      const html = await res.text();
-      expect(html).toContain("<!DOCTYPE html>");
-      expect(html).toContain("peviitor");
-      expect(html).toContain("Talent Matchmakers");
-      console.log(`✅ GitHub Pages HTML loaded from ${pagesUrl}`);
-    });
+  test('scraper directory structure is correct', () => {
+    const scraperDir = path.join(root, 'scraper');
+    expect(existsSync(scraperDir)).toBe(true);
+    expect(existsSync(path.join(scraperDir, 'index.js'))).toBe(true);
+    expect(existsSync(path.join(scraperDir, 'api.js'))).toBe(true);
+    expect(existsSync(path.join(scraperDir, 'anaf.js'))).toBe(true);
+    expect(existsSync(path.join(scraperDir, 'company.js'))).toBe(true);
+    expect(existsSync(path.join(scraperDir, 'config', 'company.json'))).toBe(true);
   });
 
-  describe("SOLR_AUTH secret", () => {
-    it("should be defined in CI environment", () => {
-      if (!REPO) {
-        console.log("GITHUB_REPOSITORY not set — running locally, skipping");
-        return;
-      }
-      expect(process.env.SOLR_AUTH).toBeTruthy();
-      console.log("✅ SOLR_AUTH is set");
-    });
+  test('old root files are deleted', () => {
+    expect(existsSync(path.join(root, 'index.js'))).toBe(false);
+    expect(existsSync(path.join(root, 'company.js'))).toBe(false);
+    expect(existsSync(path.join(root, 'solr.js'))).toBe(false);
+    expect(existsSync(path.join(root, 'demoanaf.js'))).toBe(false);
+    expect(existsSync(path.join(root, 'validate-jobs.js'))).toBe(false);
   });
 
-  describe("workflow files", () => {
-    it("must have job-seeker-ro-spider.yml", () => {
-      const ymlPath = path.resolve(__dirname, "../..", SCRAPER_YML);
-      expect(fs.existsSync(ymlPath)).toBe(true);
-      const content = fs.readFileSync(ymlPath, "utf-8");
-      expect(content).toContain("name: Oportunitati SI Cariere");
-      expect(content).toContain("schedule");
-      expect(content).toContain("workflow_dispatch");
-      console.log(`✅ ${SCRAPER_YML} exists with expected content`);
-    });
+  test('no SOLR_AUTH in workflow files', () => {
+    const workflowDir = path.join(root, '.github', 'workflows');
+    if (!existsSync(workflowDir)) return;
+
+    const files = readdirSync(workflowDir).filter(f => f.endsWith('.yml'));
+    for (const file of files) {
+      const content = readFileSync(path.join(workflowDir, file), 'utf8');
+      expect(content).not.toMatch(/SOLR_AUTH/);
+    }
+  });
+
+  test('no SOLR_AUTH or solr.peviitor.ro in package.json scripts', () => {
+    const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+    const scripts = pkg.scripts || {};
+    for (const [key, value] of Object.entries(scripts)) {
+      expect(value).not.toMatch(/SOLR_AUTH/);
+      expect(value).not.toMatch(/solr\.peviitor\.ro/);
+    }
   });
 });

@@ -1,139 +1,130 @@
-import { generateJobsMarkdown } from "../../src/markdown-generator.js";
+import { jest } from '@jest/globals';
 
-const baseCompany = {
-  id: "38460545",
-  company: "TALENT MATCHMAKERS S.R.L.",
-  brand: "Talent Matchmakers",
-  status: "activ",
-  location: ["Cluj-Napoca"],
-  website: ["https://talentmatchmakers.co"],
-  career: ["https://jobs.talentmatchmakers.co/jobs"],
-  lastScraped: "2026-06-17"
-};
+describe('markdown-generator.js Component Tests', () => {
+  let markdownGenerator;
 
-const baseJob = {
-  url: "https://jobs.talentmatchmakers.co/jobs/123",
-  title: "Senior Node.js Developer",
-  workmode: "hybrid",
-  location: ["Cluj-Napoca"],
-  tags: ["node.js", "javascript"],
-  status: "scraped"
-};
-
-describe("generateJobsMarkdown", () => {
-  describe("company section", () => {
-    it("includes company name as h1", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("# TALENT MATCHMAKERS S.R.L.");
-    });
-
-    it("includes CIF", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("38460545");
-    });
-
-    it("includes brand", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("Talent Matchmakers");
-    });
-
-    it("includes status", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("activ");
-    });
-
-    it("includes website as markdown link", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("[https://talentmatchmakers.co](https://talentmatchmakers.co)");
-    });
-
-    it("includes career page as markdown link", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("[https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs)");
-    });
-
-    it("includes lastScraped date", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("2026-06-17");
-    });
-
-    it("omits optional fields when not present", () => {
-      const minimal = { id: "38460545", company: "TALENT MATCHMAKERS S.R.L." };
-      const md = generateJobsMarkdown(minimal, []);
-      expect(md).toContain("# TALENT MATCHMAKERS S.R.L.");
-      expect(md).not.toContain("Brand");
-      expect(md).not.toContain("Last Scraped");
-    });
+  beforeAll(async () => {
+    markdownGenerator = await import('../../scraper/markdown-generator.js');
   });
 
-  describe("jobs section", () => {
-    it("shows job count in heading", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(md).toContain("## Current Job Listings (1)");
+  describe('generateJobsMarkdown', () => {
+    const companyData = {
+      id: '38460545',
+      company: 'TALENT MATCHMAKERS S.R.L.',
+      brand: 'TALENT MATCHMAKERS',
+      status: 'activ',
+      location: ['Cluj-Napoca'],
+      website: ['https://talentmatchmakers.co'],
+      career: ['https://jobs.talentmatchmakers.co'],
+      lastScraped: '2026-07-27'
+    };
+
+    it('should generate markdown with company header', () => {
+      const result = markdownGenerator.generateJobsMarkdown(companyData, []);
+
+      expect(result).toContain('# TALENT MATCHMAKERS S.R.L.');
     });
 
-    it("shows 0 when no jobs", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toContain("## Current Job Listings (0)");
+    it('should include company info table', () => {
+      const result = markdownGenerator.generateJobsMarkdown(companyData, []);
+
+      expect(result).toContain('| Field | Value |');
+      expect(result).toContain('| CIF | 38460545 |');
+      expect(result).toContain('| Brand | TALENT MATCHMAKERS |');
+      expect(result).toContain('| Status | activ |');
     });
 
-    it("includes job title as h3", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(md).toContain("### Senior Node.js Developer");
+    it('should include job count in header', () => {
+      const jobs = [
+        { url: 'https://test.com/1', title: 'Job 1', status: 'scraped' }
+      ];
+
+      const result = markdownGenerator.generateJobsMarkdown(companyData, jobs);
+
+      expect(result).toContain('Current Job Listings (1)');
     });
 
-    it("includes job URL as markdown link", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(md).toContain("[https://jobs.talentmatchmakers.co/jobs/123]");
+    it('should list job titles', () => {
+      const jobs = [
+        { url: 'https://test.com/1', title: 'Senior Developer', status: 'scraped' },
+        { url: 'https://test.com/2', title: 'Junior Developer', status: 'scraped' }
+      ];
+
+      const result = markdownGenerator.generateJobsMarkdown(companyData, jobs);
+
+      expect(result).toContain('### Senior Developer');
+      expect(result).toContain('### Junior Developer');
     });
 
-    it("includes workmode", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(md).toContain("hybrid");
+    it('should include job URLs', () => {
+      const jobs = [
+        { url: 'https://test.com/1', title: 'Job 1', status: 'scraped' }
+      ];
+
+      const result = markdownGenerator.generateJobsMarkdown(companyData, jobs);
+
+      expect(result).toContain('https://test.com/1');
     });
 
-    it("includes location", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(md).toContain("Cluj-Napoca");
+    it('should include workmode when present', () => {
+      const jobs = [
+        { url: 'https://test.com/1', title: 'Job 1', workmode: 'hybrid', status: 'scraped' }
+      ];
+
+      const result = markdownGenerator.generateJobsMarkdown(companyData, jobs);
+
+      expect(result).toContain('**Work Mode:** hybrid');
     });
 
-    it("includes tags", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(md).toContain("node.js, javascript");
+    it('should include location when present', () => {
+      const jobs = [
+        { url: 'https://test.com/1', title: 'Job 1', location: ['Bucharest'], status: 'scraped' }
+      ];
+
+      const result = markdownGenerator.generateJobsMarkdown(companyData, jobs);
+
+      expect(result).toContain('**Location:** Bucharest');
     });
 
-    it("includes status", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(md).toContain("scraped");
+    it('should include tags when present', () => {
+      const jobs = [
+        { url: 'https://test.com/1', title: 'Job 1', tags: ['Java', 'Spring'], status: 'scraped' }
+      ];
+
+      const result = markdownGenerator.generateJobsMarkdown(companyData, jobs);
+
+      expect(result).toContain('**Tags:** Java, Spring');
     });
 
-    it("renders multiple jobs", () => {
-      const job2 = { ...baseJob, title: "DevOps Engineer", url: "https://jobs.talentmatchmakers.co/jobs/456" };
-      const md = generateJobsMarkdown(baseCompany, [baseJob, job2]);
-      expect(md).toContain("### Senior Node.js Developer");
-      expect(md).toContain("### DevOps Engineer");
-      expect(md).toContain("## Current Job Listings (2)");
+    it('should handle empty jobs array', () => {
+      const result = markdownGenerator.generateJobsMarkdown(companyData, []);
+
+      expect(result).toContain('Current Job Listings (0)');
     });
 
-    it("handles job with no optional fields", () => {
-      const minimal = { url: "https://jobs.talentmatchmakers.co/jobs/999", title: "QA Engineer" };
-      const md = generateJobsMarkdown(baseCompany, [minimal]);
-      expect(md).toContain("### QA Engineer");
-      expect(md).not.toContain("Work Mode");
-      expect(md).not.toContain("Tags");
-    });
-  });
+    it('should escape markdown in company name', () => {
+      const specialCompany = { ...companyData, company: 'Test *Company* [Name]' };
+      const result = markdownGenerator.generateJobsMarkdown(specialCompany, []);
 
-  describe("output format", () => {
-    it("returns a non-empty string", () => {
-      const md = generateJobsMarkdown(baseCompany, [baseJob]);
-      expect(typeof md).toBe("string");
-      expect(md.length).toBeGreaterThan(0);
+      expect(result).toContain('\\*Company\\*');
+      expect(result).toContain('\\[Name\\]');
     });
 
-    it("includes a generated timestamp", () => {
-      const md = generateJobsMarkdown(baseCompany, []);
-      expect(md).toMatch(/_Generated: \d{4}-\d{2}-\d{2}/);
+    it('should escape markdown in job titles', () => {
+      const jobs = [
+        { url: 'https://test.com/1', title: 'Job [Senior] *Level*', status: 'scraped' }
+      ];
+
+      const result = markdownGenerator.generateJobsMarkdown(companyData, jobs);
+
+      expect(result).toContain('\\[Senior\\]');
+      expect(result).toContain('\\*Level\\*');
+    });
+
+    it('should include generation timestamp', () => {
+      const result = markdownGenerator.generateJobsMarkdown(companyData, []);
+
+      expect(result).toContain('_Generated:');
     });
   });
 });

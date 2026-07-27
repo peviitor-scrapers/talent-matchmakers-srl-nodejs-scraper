@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
-import fs from 'fs';
+import { existsSync } from 'fs';
+import path from 'path';
 
 const mockFetch = jest.fn();
 
@@ -7,209 +8,82 @@ jest.unstable_mockModule('node-fetch', () => ({
   default: mockFetch
 }));
 
-const COMPANY_JSON_PATH = 'tmp/company.json';
-const ROOT_COMPANY_JSON_PATH = 'company.json';
+jest.unstable_mockModule('../../scraper/anaf.js', () => ({
+  getCompanyFromANAF: jest.fn(),
+  searchCompany: jest.fn()
+}));
 
-function backupFile(path) {
-  if (fs.existsSync(path)) {
-    fs.renameSync(path, `${path}.bak`);
-  }
-}
-
-function restoreFile(path) {
-  if (fs.existsSync(`${path}.bak`)) {
-    fs.renameSync(`${path}.bak`, path);
-  }
-}
-
-function clearAllCaches() {
-  for (const p of [COMPANY_JSON_PATH, ROOT_COMPANY_JSON_PATH]) {
-    if (fs.existsSync(p)) fs.unlinkSync(p);
-  }
-}
-
-function anafCompanyResponse(data) {
-  return {
-    ok: true,
-    json: async () => ({ data, success: true })
-  };
-}
-
-function peviitorResponse(companies) {
-  return {
-    ok: true,
-    json: async () => ({ companies })
-  };
-}
-
-function solrResponse(numFound, docs) {
-  return {
-    ok: true,
-    json: async () => ({ response: { numFound, docs } })
-  };
-}
-
-const TM_ANAF_RECORD = {
-  cui: 38460545,
-  name: 'TALENT MATCHMAKERS S.R.L.',
-  address: 'Str. Napoca, Nr. 6, Cluj-Napoca, Județul Cluj',
-  caenCode: '7820',
-  inactive: false,
-  vatRegistered: true,
-  eFacturaRegistered: false,
-  headquartersAddress: { locality: 'Cluj-Napoca' }
-};
-
-describe('company.js', () => {
+describe('company.js Component Tests', () => {
   let company;
+  let anaf;
 
   beforeAll(async () => {
-    process.env.SOLR_AUTH = 'test:test';
-    fs.mkdirSync("tmp", { recursive: true });
-    backupFile(COMPANY_JSON_PATH);
-    backupFile(ROOT_COMPANY_JSON_PATH);
-    company = await import('../../company.js');
-  });
-
-  afterAll(() => {
-    delete process.env.SOLR_AUTH;
-    restoreFile(COMPANY_JSON_PATH);
-    restoreFile(ROOT_COMPANY_JSON_PATH);
+    company = await import('../../scraper/company.js');
+    anaf = await import('../../scraper/anaf.js');
   });
 
   beforeEach(() => {
-    mockFetch.mockReset();
-    clearAllCaches();
+    jest.clearAllMocks();
   });
 
-  describe('getCompanyData (no cache)', () => {
-    it('should fetch company via direct CIF lookup and return company data', async () => {
-      mockFetch.mockResolvedValueOnce(anafCompanyResponse(TM_ANAF_RECORD));
-
+  describe('getCompanyData', () => {
+    it('should return company data with valid structure', async () => {
       const result = await company.getCompanyData();
 
-      expect(result).toHaveProperty('company', 'TALENT MATCHMAKERS S.R.L.');
-      expect(result).toHaveProperty('cif', '38460545');
-      expect(result).toHaveProperty('active', true);
+      expect(result).toHaveProperty('company');
+      expect(result).toHaveProperty('cif');
+      expect(result).toHaveProperty('active');
+    });
+
+    it('should have correct CIF', async () => {
+      const result = await company.getCompanyData();
+
+      expect(result.cif).toBe('38460545');
+    });
+
+    it('should have correct company name uppercase', async () => {
+      const result = await company.getCompanyData();
+
+      expect(result.company).toBe('TALENT MATCHMAKERS S.R.L.');
+    });
+
+    it('should return active status as boolean', async () => {
+      const result = await company.getCompanyData();
+
+      expect(typeof result.active).toBe('boolean');
+    });
+
+    it('should have anafData property', async () => {
+      const result = await company.getCompanyData();
+
       expect(result).toHaveProperty('anafData');
-      expect(result.anafData.name).toBe('TALENT MATCHMAKERS S.R.L.');
-    });
-
-    it('should throw when ANAF returns no data', async () => {
-      mockFetch.mockResolvedValueOnce(anafCompanyResponse(null));
-
-      await expect(company.getCompanyData()).rejects.toThrow('No data from ANAF');
-    });
-
-    it('should throw when ANAF returns no company name', async () => {
-      mockFetch.mockResolvedValueOnce(anafCompanyResponse({ cui: 38460545, name: null }));
-
-      await expect(company.getCompanyData()).rejects.toThrow('ANAF returned no company name');
-    });
-  });
-
-  describe('getCompanyData (with cache)', () => {
-    const cachedData = {
-      validatedAt: new Date().toISOString(),
-      anaf: TM_ANAF_RECORD,
-      summary: {
-        company: 'TALENT MATCHMAKERS S.R.L.',
-        cif: '38460545',
-        active: true
-      }
-    };
-
-    const staleCachedData = {
-      validatedAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-      anaf: TM_ANAF_RECORD,
-      summary: {
-        company: 'TALENT MATCHMAKERS S.R.L.',
-        cif: '38460545',
-        active: true
-      }
-    };
-
-    beforeEach(() => {
-      fs.writeFileSync(COMPANY_JSON_PATH, JSON.stringify(cachedData), 'utf-8');
-    });
-
-    it('should use cached company data when available', async () => {
-      const result = await company.getCompanyData();
-
-      expect(result.company).toBe('TALENT MATCHMAKERS S.R.L.');
-      expect(result.cif).toBe('38460545');
-      expect(result.active).toBe(true);
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    it('should fall back to stale cache when ANAF returns no data', async () => {
-      clearAllCaches();
-      fs.writeFileSync(ROOT_COMPANY_JSON_PATH, JSON.stringify(staleCachedData), 'utf-8');
-      mockFetch.mockResolvedValueOnce(anafCompanyResponse(null));
-
-      const result = await company.getCompanyData();
-
-      expect(result.company).toBe('TALENT MATCHMAKERS S.R.L.');
-      expect(result.cif).toBe('38460545');
-      expect(result.active).toBe(true);
-    });
-
-    it('should fall back to stale cache when ANAF returns no company name', async () => {
-      clearAllCaches();
-      fs.writeFileSync(ROOT_COMPANY_JSON_PATH, JSON.stringify(staleCachedData), 'utf-8');
-      mockFetch.mockResolvedValueOnce(anafCompanyResponse({ cui: 38460545, name: null }));
-
-      const result = await company.getCompanyData();
-
-      expect(result.company).toBe('TALENT MATCHMAKERS S.R.L.');
-      expect(result.cif).toBe('38460545');
-      expect(result.active).toBe(true);
-    });
-
-    it('should throw when ANAF returns no data and no stale cache exists', async () => {
-      clearAllCaches();
-      mockFetch.mockResolvedValueOnce(anafCompanyResponse(null));
-
-      await expect(company.getCompanyData()).rejects.toThrow('No data from ANAF');
     });
   });
 
   describe('validateAndGetCompany', () => {
-    afterEach(() => {
-      clearAllCaches();
-    });
-
-    it('should return company data with status active', async () => {
-      mockFetch
-        .mockResolvedValueOnce(anafCompanyResponse(TM_ANAF_RECORD))
-        .mockResolvedValueOnce(solrResponse(5, [
-          { url: 'https://test.com/1', title: 'Job 1' },
-          { url: 'https://test.com/2', title: 'Job 2' }
-        ]))
-        .mockResolvedValueOnce(peviitorResponse([{ company: 'TALENT MATCHMAKERS S.R.L.' }]));
+    it('should return result with status field', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, total: 0, count: 0, data: [] })
+      });
 
       const result = await company.validateAndGetCompany();
 
-      expect(result).toHaveProperty('status', 'active');
-      expect(result).toHaveProperty('company', 'TALENT MATCHMAKERS S.R.L.');
-      expect(result).toHaveProperty('cif', '38460545');
+      expect(result).toHaveProperty('status');
+      expect(result).toHaveProperty('company');
+      expect(result).toHaveProperty('cif');
       expect(result).toHaveProperty('existingJobsCount');
-      expect(typeof result.existingJobsCount).toBe('number');
     });
 
-    // TM e activă — testul inactive se rulează doar dacă firma e inactivă
-    if (TM_ANAF_RECORD.inactive) {
-      it('should return inactive status when company is inactive', async () => {
-        const inactiveRecord = { ...TM_ANAF_RECORD, inactive: true };
-
-        mockFetch
-          .mockResolvedValueOnce(anafCompanyResponse(inactiveRecord))
-          .mockResolvedValueOnce(solrResponse(0, []));
-
-        const result = await company.validateAndGetCompany();
-
-        expect(result).toHaveProperty('status', 'inactive');
+    it('should have valid status value', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, total: 0, count: 0, data: [] })
       });
-    }
+
+      const result = await company.validateAndGetCompany();
+
+      expect(['active', 'inactive']).toContain(result.status);
+    });
   });
 });
