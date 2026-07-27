@@ -7,14 +7,14 @@
 | CIF | 38460545 |
 | Brand | TALENT MATCHMAKERS |
 | Status | activ |
-| Location | GOVORA, 4, Municipiul Cluj-Napoca, Cluj |
+| Location | Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-07-26 |
+| Last Scraped | 2026-07-27 |
 
 ## Current Job Listings (2)
 
-_Generated: 2026-07-26T08:32:02.811Z_
+_Generated: 2026-07-27T19:54:16.452Z_
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
 
