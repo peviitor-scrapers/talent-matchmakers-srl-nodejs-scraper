@@ -12,6 +12,6 @@
   "career": [
     "https://jobs.talentmatchmakers.co/jobs"
   ],
-  "lastScraped": "2026-07-27",
+  "lastScraped": "2026-07-31",
   "scraperFile": "https://github.com/sebiboga/talent-matchmakers-srl-nodejs-scraper/actions/workflows/job-seeker-ro-spider.yml"
 }

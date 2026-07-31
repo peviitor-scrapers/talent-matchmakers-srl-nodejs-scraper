@@ -46,3 +46,7 @@ delete.json
 *.pem
 *.key
 credentials.json
+
+# Generated company files (single source: scraper/config/company.json)
+scraper/anaf-cache.json
+docs/company.json

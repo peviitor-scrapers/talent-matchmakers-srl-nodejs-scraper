@@ -24,9 +24,8 @@ NEVER use paths outside the project.
 - Push after commit
 
 ### 3. Environment Variables
-- `SOLR_AUTH` must be set in `.env.local` for SOLR tests (format: `user:password`)
-- `.env.local` is loaded automatically at runtime via `dotenv` (see `package.json`) — never commit it
-- Consistency tests also need `GITHUB_REPOSITORY` (format: `owner/repo`) and `GITHUB_TOKEN`
+- All operations go through `api.peviitor.ro/v1` — no direct SOLR access, no `SOLR_AUTH` needed
+- Consistency tests need `GITHUB_REPOSITORY` (format: `owner/repo`) and `GITHUB_TOKEN`
 
 ### 4. Testing
 ```bash
@@ -57,19 +56,27 @@ npm run test:consistency
 - Toate workflow-urile din `.github/workflows/` trebuie să treacă înainte de merge
 
 ### 7. Module Structure
-- `config/company.json` + `config/company.js` — single source of truth for company identity
-- `src/anaf.js` — core ANAF library (imported by company.js); retry logic: 3 retries, 2s exponential backoff
-- `src/markdown-generator.js` — generates `docs/jobs.md` after each scrape; called from index.js
-- `src/job-validator.js` — shared `validateByHead` + `validateByContent` used by both validator CLIs
-- `demoanaf.js` — CLI wrapper around src/anaf.js
-- `company.js` — company validation (ANAF + Peviitor + SOLR); root `company.json` is a 7-day ANAF cache committed to repo, with stale fallback
-- `solr.js` — SOLR operations
-- `validate-jobs.js` — manual deep validator (content-aware); thin wrapper over src/job-validator.js
-- `tests/validate-talent-matchmakers-jobs.js` — CI fast validator (HEAD only); thin wrapper over src/job-validator.js + solr.js
-- `index.js` — main scraper orchestrator
+- `scraper/config/company.json` + `scraper/config/company.js` — single source of truth for company identity
+- `scraper/anaf.js` — ANAF API core module (imported by company.js); exports getCompanyFromANAF, getCompanyFromANAFWithFallback, searchCompany
+- `scraper/markdown-generator.js` — generates `docs/jobs.md` after each scrape; called from index.js
+- `scraper/job-validator.js` — shared `validateByHead` + `validateByContent` + `validateByBrowser` used by both validator CLIs
+- `scraper/demoanaf.js` — CLI wrapper around scraper/anaf.js
+- `scraper/company.js` — company validation (ANAF + Peviitor); reads from `scraper/config/company.json`, writes `scraper/anaf-cache.json` for offline fallback
+- `scraper/api.js` — Peviitor API operations (query, upsert, delete) — no direct SOLR access
+- `scraper/validate-jobs.js` — manual deep validator (content-aware); thin wrapper over scraper/job-validator.js
+- `tests/validate-talent-matchmakers-jobs.js` — CI fast validator (HEAD only); thin wrapper over scraper/job-validator.js + scraper/api.js
+- `scraper/index.js` — main scraper orchestrator
 
 ### 8. Caching Behavior
-- `tmp/company.json` — per-run scratch cache (gitignored)
-- `company.json` (root) — committed cache, refreshed every 7 days (configurable via `CACHE_MAX_AGE_DAYS` in company.js)
+- `scraper/anaf-cache.json` — ANAF raw data for offline fallback (gitignored)
+- `scraper/config/company.json` — single source of truth; `lastScraped` refreshed every 7 days (configurable via `CACHE_MAX_AGE_DAYS` in company.js)
 - If ANAF is unreachable AND cache is stale, the code falls back to the stale cache rather than failing the scrape
 - `docs/company.json` is regenerated on every scrape so GitHub Pages can read company identity
+
+### 9. Maintenance Agent
+See [MAINTENANCE.md](MAINTENANCE.md) for the full maintenance workflow.
+
+**On every session:**
+1. Check open GitHub issues: `gh issue list --repo sebiboga/talent-matchmakers-srl-nodejs-scraper --state open`
+2. Prioritize: `critical` → `bug` → `enhancement` → `documentation`
+3. Fix all issues, commit with `#issue` reference, close the issue
