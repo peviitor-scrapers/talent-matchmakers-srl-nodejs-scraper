@@ -14,7 +14,7 @@
 
 ## Current Job Listings (2)
 
-_Generated: 2026-07-31T06:35:06.816Z_
+_Generated: 2026-07-31T06:39:51.379Z_
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
 
