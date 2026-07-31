@@ -76,6 +76,7 @@
 | `.github/workflows/automation-testing.yml` | Automated tests on every push/PR |
 | `.github/workflows/job-recovery-from-disaster.yml` | Manual recovery workflow |
 | `.github/workflows/job-deep-validate.yml` | Manual deep validation via Playwright (browser mode) |
+| `.github/workflows/automation-template-sync-check.yml` | Weekly check that the derived scraper is up to date with the EPAM template |
 
 ## Data Files
 
