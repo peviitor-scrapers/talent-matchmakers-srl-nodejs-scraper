@@ -6,97 +6,213 @@ jest.unstable_mockModule('node-fetch', () => ({
   default: mockFetch
 }));
 
-jest.unstable_mockModule('../../scraper/anaf.js', () => ({
-  getCompanyFromANAF: jest.fn(),
-  searchCompany: jest.fn()
-}));
-
-function makeAnafResponseSuccess(name, cif, status = 'Activ') {
-  return `
-    <table class="table table-striped table-bordered">
-      <tr><td>1</td><td>${cif}</td><td>${name}</td><td>${status}</td></tr>
-    </table>
-  `;
+function anafSearchResponse(results) {
+  return {
+    ok: true,
+    json: async () => ({ data: results, success: true })
+  };
 }
 
-function makeAnafEmptyResponse() {
-  return '<p>Nu au fost gasite rezultate pentru cautarea efectuata.</p>';
+function anafCompanyResponse(data) {
+  return {
+    ok: true,
+    json: async () => ({ data, success: true })
+  };
 }
 
-describe('demoanaf.js Component Tests', () => {
-  let demoanaf;
+function errorResponse(status) {
+  return {
+    ok: false,
+    status,
+    text: async () => 'Error'
+  };
+}
+
+function cuiscanCompanyResponse(data) {
+  return {
+    ok: true,
+    json: async () => data
+  };
+}
+
+const TALENT_ANAF_RECORD = {
+  cui: 38460545,
+  name: 'TALENT MATCHMAKERS S.R.L.',
+  address: 'CLUJ-NAPOCA',
+  caenCode: '7021',
+  inactive: false,
+  registrationNumber: 'J12/3574/2018',
+  vatRegistered: true,
+  onrcStatusLabel: 'Funcțiune',
+  legalForm: 'SRL'
+};
+
+const CUISCAN_RECORD = {
+  cui: 38460545,
+  denumire: 'TALENT MATCHMAKERS S.R.L.',
+  adresa: 'CLUJ-NAPOCA',
+  codCaen: '7021',
+  activ: true,
+  nrRegCom: 'J12/3574/2018',
+  platitorTVA: true,
+  stareInregistrare: 'INREGISTRAT',
+  adresaSediu: { strada: '', numar: '', localitate: 'Cluj-Napoca', judet: 'CLUJ', codPostal: '' }
+};
+
+const CACHED_DATA = {
+  cui: 38460545,
+  name: 'TALENT MATCHMAKERS S.R.L.',
+  address: 'CLUJ-NAPOCA',
+  registrationNumber: 'J12/3574/2018',
+  caenCode: '7021',
+  inactive: false,
+  onrcStatusLabel: 'Funcțiune'
+};
+
+describe('scraper/anaf.js', () => {
   let anaf;
 
   beforeAll(async () => {
     anaf = await import('../../scraper/anaf.js');
-
-    // Pre-populate mocks so module-level code in demoanaf.js doesn't crash
-    anaf.getCompanyFromANAF.mockResolvedValue({ name: 'TEST', cui: '38460545', inactive: false });
-    anaf.searchCompany.mockResolvedValue([]);
-
-    demoanaf = await import('../../scraper/demoanaf.js');
   });
 
   beforeEach(() => {
     mockFetch.mockReset();
-    anaf.getCompanyFromANAF.mockReset();
-    anaf.searchCompany.mockReset();
   });
 
-  describe('searchCompany (from anaf.js)', () => {
-    it('should search by CIF and return company name', async () => {
-      anaf.searchCompany.mockResolvedValue([
-        { name: 'TALENT MATCHMAKERS S.R.L.', cui: '38460545', inactive: false }
-      ]);
+  describe('searchCompany', () => {
+    it('should return array of companies for valid brand', async () => {
+      mockFetch.mockResolvedValue(anafSearchResponse([
+        { cui: 38460545, name: 'TALENT MATCHMAKERS S.R.L.', statusLabel: 'Funcțiune' }
+      ]));
 
-      const results = await anaf.searchCompany('38460545');
+      const results = await anaf.searchCompany('TALENT MATCHMAKERS');
 
-      expect(results).toHaveLength(1);
-      expect(results[0].name).toContain('TALENT MATCHMAKERS');
+      expect(Array.isArray(results)).toBe(true);
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]).toHaveProperty('cui');
+      expect(results[0]).toHaveProperty('name');
     });
 
-    it('should return empty array when no matches', async () => {
-      anaf.searchCompany.mockResolvedValue([]);
+    it('should return empty array for non-existent brand', async () => {
+      mockFetch.mockResolvedValue(anafSearchResponse([]));
 
-      const results = await anaf.searchCompany('99999999');
+      const results = await anaf.searchCompany('NonExistentBrandXYZ123');
 
-      expect(results).toEqual([]);
+      expect(Array.isArray(results)).toBe(true);
+      expect(results.length).toBe(0);
+    });
+
+    it('should include statusLabel in results', async () => {
+      mockFetch.mockResolvedValue(anafSearchResponse([
+        { cui: 38460545, name: 'TALENT MATCHMAKERS S.R.L.', statusLabel: 'Funcțiune' }
+      ]));
+
+      const results = await anaf.searchCompany('TALENT MATCHMAKERS');
+
+      expect(results[0]).toHaveProperty('statusLabel', 'Funcțiune');
+    });
+
+    it('should fallback to CUIFirma when ANAF search fails', async () => {
+      mockFetch
+        .mockResolvedValueOnce(errorResponse(500))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ results: [{ cui: 38460545, name: 'TALENT MATCHMAKERS S.R.L.', is_active: true }] })
+        });
+
+      const results = await anaf.searchCompany('TALENT MATCHMAKERS');
+
+      expect(Array.isArray(results)).toBe(true);
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].cui).toBe('38460545');
+    });
+
+    it('should encode brand name in URL', async () => {
+      let capturedUrl;
+      mockFetch.mockImplementation((url) => {
+        capturedUrl = url;
+        return Promise.resolve(anafSearchResponse([]));
+      });
+
+      await anaf.searchCompany('TALENT MATCHMAKERS SRL');
+      expect(capturedUrl).toContain(encodeURIComponent('TALENT MATCHMAKERS SRL'));
     });
   });
 
-  describe('getCompanyFromANAF (from anaf.js)', () => {
-    it('should return company data with valid structure', async () => {
-      anaf.getCompanyFromANAF.mockResolvedValue({
-        name: 'TALENT MATCHMAKERS S.R.L.',
-        cui: '38460545',
-        inactive: false
-      });
+  describe('getCompanyFromANAF', () => {
+    it('should return company data for valid CIF', async () => {
+      mockFetch.mockResolvedValue(anafCompanyResponse(TALENT_ANAF_RECORD));
 
-      const result = await anaf.getCompanyFromANAF('38460545');
+      const data = await anaf.getCompanyFromANAF('38460545');
 
-      expect(result).toHaveProperty('name');
-      expect(result).toHaveProperty('cui');
-      expect(result).toHaveProperty('inactive');
+      expect(data).toBeDefined();
+      expect(data.cui).toBe(38460545);
+      expect(data.name).toBe('TALENT MATCHMAKERS S.R.L.');
+      expect(data).toHaveProperty('address');
+      expect(data).toHaveProperty('registrationNumber');
     });
 
-    it('should return null when company not found', async () => {
-      anaf.getCompanyFromANAF.mockResolvedValue(null);
+    it('should fallback to CUIScan when ANAF fails', async () => {
+      mockFetch
+        .mockResolvedValueOnce(errorResponse(500))
+        .mockResolvedValueOnce(cuiscanCompanyResponse(CUISCAN_RECORD));
 
-      const result = await anaf.getCompanyFromANAF('00000000');
+      const data = await anaf.getCompanyFromANAF('38460545');
 
-      expect(result).toBeNull();
+      expect(data).toBeDefined();
+      expect(data.cui).toBe(38460545);
+      expect(data.name).toBe('TALENT MATCHMAKERS S.R.L.');
+      expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
-    it('should preserve cui as number', async () => {
-      anaf.getCompanyFromANAF.mockResolvedValue({
-        name: 'TEST COMPANY',
-        cui: 12345678,
-        inactive: false
-      });
+    it('should throw when both ANAF and CUIScan fail', async () => {
+      mockFetch.mockResolvedValue(errorResponse(500));
 
-      const result = await anaf.getCompanyFromANAF('12345678');
+      await expect(anaf.getCompanyFromANAF('38460545')).rejects.toThrow();
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
 
-      expect(typeof result.cui).toBe('number');
+    it('should handle API-level error response', async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: false, error: { message: 'Company not found' } })
+        })
+        .mockResolvedValueOnce(errorResponse(500));
+
+      await expect(anaf.getCompanyFromANAF('00000000')).rejects.toThrow();
+    });
+
+    it('should return null when data is null', async () => {
+      mockFetch.mockResolvedValue(anafCompanyResponse(null));
+
+      const data = await anaf.getCompanyFromANAF('38460545');
+      expect(data).toBeNull();
+    });
+  });
+
+  describe('getCompanyFromANAFWithFallback', () => {
+    it('should return fresh data when API works', async () => {
+      mockFetch.mockResolvedValue(anafCompanyResponse(TALENT_ANAF_RECORD));
+
+      const data = await anaf.getCompanyFromANAFWithFallback('38460545');
+
+      expect(data.name).toBe('TALENT MATCHMAKERS S.R.L.');
+    });
+
+    it('should use cached data when API fails', async () => {
+      mockFetch.mockResolvedValue(errorResponse(500));
+
+      const data = await anaf.getCompanyFromANAFWithFallback('38460545', CACHED_DATA);
+
+      expect(data).toEqual(CACHED_DATA);
+    });
+
+    it('should throw when API fails and no cache available', async () => {
+      mockFetch.mockResolvedValue(errorResponse(500));
+
+      await expect(anaf.getCompanyFromANAFWithFallback('38460545')).rejects.toThrow();
     });
   });
 });

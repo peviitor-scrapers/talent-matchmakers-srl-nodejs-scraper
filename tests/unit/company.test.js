@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
-import { existsSync } from 'fs';
-import path from 'path';
+import fs from 'fs';
 
 const mockFetch = jest.fn();
 
@@ -8,82 +7,144 @@ jest.unstable_mockModule('node-fetch', () => ({
   default: mockFetch
 }));
 
-jest.unstable_mockModule('../../scraper/anaf.js', () => ({
-  getCompanyFromANAF: jest.fn(),
-  searchCompany: jest.fn()
-}));
+const ANAF_CACHE_PATH = 'scraper/anaf-cache.json';
+const CONFIG_JSON_PATH = 'scraper/config/company.json';
 
-describe('company.js Component Tests', () => {
+function snapshotFile(path) {
+  if (!fs.existsSync(path)) return null;
+  return fs.readFileSync(path, 'utf-8');
+}
+
+function restoreFile(path, snapshot) {
+  if (snapshot !== null) {
+    fs.writeFileSync(path, snapshot, 'utf-8');
+  } else if (fs.existsSync(path)) {
+    fs.unlinkSync(path);
+  }
+}
+
+function clearAnafCache() {
+  if (fs.existsSync(ANAF_CACHE_PATH)) fs.unlinkSync(ANAF_CACHE_PATH);
+}
+
+function anafCompanyResponse(data) {
+  return {
+    ok: true,
+    json: async () => ({ data, success: true })
+  };
+}
+
+function peviitorResponse(companies) {
+  return {
+    ok: true,
+    json: async () => ({ success: true, data: companies })
+  };
+}
+
+function solrResponse(total, data) {
+  return {
+    ok: true,
+    json: async () => ({ total, data })
+  };
+}
+
+function errorResponse(status) {
+  return {
+    ok: false,
+    status,
+    text: async () => 'Error'
+  };
+}
+
+const TALENT_ANAF_RECORD = {
+  cui: 38460545,
+  name: 'TALENT MATCHMAKERS S.R.L.',
+  address: 'CLUJ-NAPOCA',
+  caenCode: '7021',
+  inactive: false,
+  vatRegistered: true,
+  eFacturaRegistered: false,
+  headquartersAddress: { locality: 'Cluj-Napoca' }
+};
+
+describe('company.js', () => {
   let company;
-  let anaf;
+  let anafCacheSnapshot;
+  let configSnapshot;
 
   beforeAll(async () => {
     company = await import('../../scraper/company.js');
-    anaf = await import('../../scraper/anaf.js');
+    anafCacheSnapshot = snapshotFile(ANAF_CACHE_PATH);
+    configSnapshot = snapshotFile(CONFIG_JSON_PATH);
+  });
+
+  afterAll(() => {
+    restoreFile(ANAF_CACHE_PATH, anafCacheSnapshot);
+    restoreFile(CONFIG_JSON_PATH, configSnapshot);
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockFetch.mockReset();
+    clearAnafCache();
   });
 
-  describe('getCompanyData', () => {
-    it('should return company data with valid structure', async () => {
+  describe('getCompanyData (no cache)', () => {
+    it('should fetch TALENT MATCHMAKERS via direct CIF lookup and return company data', async () => {
+      mockFetch.mockResolvedValueOnce(anafCompanyResponse(TALENT_ANAF_RECORD));
+
       const result = await company.getCompanyData();
 
-      expect(result).toHaveProperty('company');
-      expect(result).toHaveProperty('cif');
-      expect(result).toHaveProperty('active');
-    });
-
-    it('should have correct CIF', async () => {
-      const result = await company.getCompanyData();
-
-      expect(result.cif).toBe('38460545');
-    });
-
-    it('should have correct company name uppercase', async () => {
-      const result = await company.getCompanyData();
-
-      expect(result.company).toBe('TALENT MATCHMAKERS S.R.L.');
-    });
-
-    it('should return active status as boolean', async () => {
-      const result = await company.getCompanyData();
-
-      expect(typeof result.active).toBe('boolean');
-    });
-
-    it('should have anafData property', async () => {
-      const result = await company.getCompanyData();
-
+      expect(result).toHaveProperty('company', 'TALENT MATCHMAKERS S.R.L.');
+      expect(result).toHaveProperty('cif', '38460545');
+      expect(result).toHaveProperty('active', true);
       expect(result).toHaveProperty('anafData');
+      expect(result.anafData.name).toBe('TALENT MATCHMAKERS S.R.L.');
+    });
+
+    it('should throw when ANAF returns no data', async () => {
+      mockFetch.mockResolvedValueOnce(anafCompanyResponse(null));
+
+      await expect(company.getCompanyData()).rejects.toThrow('No data from ANAF');
+    });
+
+    it('should throw when ANAF returns no company name', async () => {
+      mockFetch.mockResolvedValueOnce(anafCompanyResponse({ cui: 38460545, name: null }));
+
+      await expect(company.getCompanyData()).rejects.toThrow('ANAF returned no company name');
+    });
+
+    it('should fall back to stale config when ANAF and CUIScan are unreachable', async () => {
+      mockFetch.mockResolvedValue(errorResponse(500));
+
+      const result = await company.getCompanyData();
+
+      expect(result).toHaveProperty('company', 'TALENT MATCHMAKERS S.R.L.');
+      expect(result).toHaveProperty('cif', '38460545');
+      expect(result).toHaveProperty('active', true);
     });
   });
 
   describe('validateAndGetCompany', () => {
-    it('should return result with status field', async () => {
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, total: 0, count: 0, data: [] })
-      });
-
-      const result = await company.validateAndGetCompany();
-
-      expect(result).toHaveProperty('status');
-      expect(result).toHaveProperty('company');
-      expect(result).toHaveProperty('cif');
-      expect(result).toHaveProperty('existingJobsCount');
+    afterEach(() => {
+      clearAnafCache();
     });
 
-    it('should have valid status value', async () => {
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: async () => ({ success: true, total: 0, count: 0, data: [] })
-      });
+    it('should return company data with status active', async () => {
+      mockFetch
+        .mockResolvedValueOnce(anafCompanyResponse(TALENT_ANAF_RECORD))
+        .mockResolvedValueOnce(solrResponse(5, [
+          { url: 'https://jobs.talentmatchmakers.co/jobs/1', title: 'Job 1' },
+          { url: 'https://jobs.talentmatchmakers.co/jobs/2', title: 'Job 2' }
+        ]))
+        .mockResolvedValueOnce(peviitorResponse([{ company: 'TALENT MATCHMAKERS S.R.L.' }]));
 
       const result = await company.validateAndGetCompany();
 
-      expect(['active', 'inactive']).toContain(result.status);
+      expect(result).toHaveProperty('status', 'active');
+      expect(result).toHaveProperty('company', 'TALENT MATCHMAKERS S.R.L.');
+      expect(result).toHaveProperty('cif', '38460545');
+      expect(result).toHaveProperty('existingJobsCount');
+      expect(typeof result.existingJobsCount).toBe('number');
     });
   });
 });
