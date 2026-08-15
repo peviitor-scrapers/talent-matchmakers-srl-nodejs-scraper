@@ -7,14 +7,14 @@
 | CIF | 38460545 |
 | Brand | TALENT MATCHMAKERS |
 | Status | activ |
-| Location | Mun. Cluj-Napoca |
+| Location | Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-08-14 |
+| Last Scraped | 2026-08-15 |
 
 ## Current Job Listings (2)
 
-_Generated: 2026-08-14T07:37:13.988Z_
+_Generated: 2026-08-15T06:42:39.925Z_
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
 
