@@ -10,11 +10,11 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-08-25 |
+| Last Scraped | 2026-08-26 |
 
 ## Current Job Listings (1)
 
-_Generated: 2026-08-25T06:53:50.046Z_
+_Generated: 2026-08-26T06:54:48.710Z_
 
 ### EXECUTIVE ASSISTANT (ACCOUNTING)
 
