@@ -10,11 +10,11 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-09-10 |
+| Last Scraped | 2026-09-11 |
 
 ## Current Job Listings (2)
 
-_Generated: 2026-09-10T10:55:46.730Z_
+_Generated: 2026-09-11T10:53:41.279Z_
 
 ### DIRECTOR FINANCIAR
 
