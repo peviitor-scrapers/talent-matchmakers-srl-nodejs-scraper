@@ -10,11 +10,25 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-09-15 |
+| Last Scraped | 2026-09-17 |
 
-## Current Job Listings (2)
+## Current Job Listings (4)
 
-_Generated: 2026-09-15T11:23:05.428Z_
+_Generated: 2026-09-17T11:16:58.807Z_
+
+### HR SPECIALIST (PAYROLL)
+
+- **URL:** [https://jobs.talentmatchmakers.co/jobs/8392499-hr-specialist-payroll](https://jobs.talentmatchmakers.co/jobs/8392499-hr-specialist-payroll)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### MANAGER CONTROLLING FINANCIAR
+
+- **URL:** [https://jobs.talentmatchmakers.co/jobs/8387808-manager-controlling-financiar](https://jobs.talentmatchmakers.co/jobs/8387808-manager-controlling-financiar)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
 
 ### DIRECTOR FINANCIAR
 
