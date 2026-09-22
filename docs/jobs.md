@@ -10,11 +10,11 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-09-21 |
+| Last Scraped | 2026-09-22 |
 
 ## Current Job Listings (3)
 
-_Generated: 2026-09-21T12:22:30.178Z_
+_Generated: 2026-09-22T11:13:37.092Z_
 
 ### HR SPECIALIST (PAYROLL)
 
