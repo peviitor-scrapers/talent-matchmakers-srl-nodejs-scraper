@@ -10,11 +10,18 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-10-02 |
+| Last Scraped | 2026-10-03 |
 
-## Current Job Listings (2)
+## Current Job Listings (3)
 
-_Generated: 2026-10-02T12:08:54.825Z_
+_Generated: 2026-10-03T11:19:53.248Z_
+
+### DATA ENGINEER
+
+- **URL:** [https://jobs.talentmatchmakers.co/jobs/8492608-data-engineer](https://jobs.talentmatchmakers.co/jobs/8492608-data-engineer)
+- **Work Mode:** hybrid
+- **Location:** România
+- **Status:** scraped
 
 ### HR SPECIALIST (PAYROLL)
 
