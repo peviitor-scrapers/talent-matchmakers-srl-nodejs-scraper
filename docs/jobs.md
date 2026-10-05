@@ -10,11 +10,11 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-10-04 |
+| Last Scraped | 2026-10-05 |
 
 ## Current Job Listings (3)
 
-_Generated: 2026-10-04T12:00:14.346Z_
+_Generated: 2026-10-05T14:02:23.257Z_
 
 ### DATA ENGINEER
 
