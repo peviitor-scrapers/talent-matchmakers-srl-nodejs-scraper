@@ -10,11 +10,18 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-10-07 |
+| Last Scraped | 2026-10-08 |
 
-## Current Job Listings (3)
+## Current Job Listings (4)
 
-_Generated: 2026-10-07T12:56:06.503Z_
+_Generated: 2026-10-08T13:04:24.415Z_
+
+### BUSINESS OPERATIONS SPECIALIST
+
+- **URL:** [https://jobs.talentmatchmakers.co/jobs/8512403-business-operations-specialist](https://jobs.talentmatchmakers.co/jobs/8512403-business-operations-specialist)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
 
 ### DATA ENGINEER
 
