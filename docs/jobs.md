@@ -10,11 +10,11 @@
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
 | Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-10-08 |
+| Last Scraped | 2026-10-09 |
 
 ## Current Job Listings (4)
 
-_Generated: 2026-10-08T13:04:24.415Z_
+_Generated: 2026-10-09T12:50:50.186Z_
 
 ### BUSINESS OPERATIONS SPECIALIST
 
