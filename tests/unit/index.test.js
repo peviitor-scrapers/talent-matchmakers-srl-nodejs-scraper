@@ -79,7 +79,7 @@ describe('index.js Component Tests', () => {
   describe('mapToJobModel', () => {
     it('should map raw job to job model format', () => {
       const rawJob = {
-        url: 'https://jobs.talentmatchmakers.co/jobs/123',
+        url: 'https://talentmatchmakers.co/jobs/123',
         title: 'Senior Developer',
         location: ['Bucharest'],
         tags: ['Java', 'Spring'],
@@ -136,7 +136,7 @@ describe('index.js Component Tests', () => {
       expect(result.jobs).toHaveLength(1);
       expect(result.total).toBe(1);
       expect(result.jobs[0].title).toBe('Senior Developer');
-      expect(result.jobs[0].url).toBe('https://jobs.talentmatchmakers.co/jobs/123');
+      expect(result.jobs[0].url).toBe('https://talentmatchmakers.co/jobs/123');
       expect(result.jobs[0].location).toEqual(['Bucharest']);
       expect(result.jobs[0].workmode).toBe('hybrid');
       expect(result.jobs[0].tags).toEqual([]);
@@ -231,6 +231,81 @@ describe('index.js Component Tests', () => {
       const result = index.parseHtmlJobs(html);
 
       expect(result.jobs[0].url).toBe('https://custom.example.com/job/999');
+    });
+
+    it('should parse the current schema.org ItemList and job-row locations', () => {
+      const itemList = {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, url: 'https://talentmatchmakers.co/jobs/1-data-architect', name: 'DATA ARCHITECT' },
+          { '@type': 'ListItem', position: 2, url: 'https://talentmatchmakers.co/jobs/2-devops', name: 'MID/SENIOR DEVOPS CONTRACTOR' }
+        ]
+      };
+      const html = `<!DOCTYPE html><html><head>
+        <script type="application/ld+json">${JSON.stringify(itemList)}</script>
+        </head><body>
+        <div class="job-row"><div><h3>DATA ARCHITECT</h3><span>Cluj-Napoca</span></div><a href="https://talentmatchmakers.co/jobs/1-data-architect">View role</a></div>
+        <div class="job-row"><div><h3>MID/SENIOR DEVOPS CONTRACTOR</h3><span>Cluj-Napoca, Other Locations</span></div><a href="https://talentmatchmakers.co/jobs/2-devops">View role</a></div>
+        </body></html>`;
+
+      const result = index.parseHtmlJobs(html);
+
+      expect(result.jobs).toHaveLength(2);
+      expect(result.jobs[0]).toMatchObject({
+        url: 'https://talentmatchmakers.co/jobs/1-data-architect',
+        title: 'DATA ARCHITECT',
+        location: ['Cluj-Napoca']
+      });
+      expect(result.jobs[1].location).toEqual(['Cluj-Napoca']);
+    });
+
+    it('should fall back to job-row cards when JSON-LD is missing', () => {
+      const html = `<!DOCTYPE html><html><body>
+        <div class="job-row"><div><h3>SENIOR DATA ENGINEER</h3><span>Cluj-Napoca</span></div><a href="/jobs/3-senior-data-engineer">View role</a></div>
+        </body></html>`;
+
+      const result = index.parseHtmlJobs(html);
+
+      expect(result.jobs).toHaveLength(1);
+      expect(result.jobs[0]).toMatchObject({
+        url: 'https://talentmatchmakers.co/jobs/3-senior-data-engineer',
+        title: 'SENIOR DATA ENGINEER',
+        location: ['Cluj-Napoca']
+      });
+    });
+
+    it('should ignore malformed JSON-LD and keep parsing the page', () => {
+      const html = `<!DOCTYPE html><html><head>
+        <script type="application/ld+json">{not valid json</script>
+        </head><body>
+        <div class="job-row"><div><h3>DATA ARCHITECT</h3><span>Cluj-Napoca</span></div><a href="/jobs/4-data-architect">View role</a></div>
+        </body></html>`;
+
+      const result = index.parseHtmlJobs(html);
+
+      expect(result.jobs).toHaveLength(1);
+      expect(result.jobs[0].title).toBe('DATA ARCHITECT');
+    });
+
+    it('should deduplicate jobs present in both JSON-LD and job-row cards', () => {
+      const itemList = {
+        '@type': 'ItemList',
+        itemListElement: [
+          { '@type': 'ListItem', url: 'https://talentmatchmakers.co/jobs/5-data-engineer', name: 'DATA ENGINEER' },
+          { '@type': 'ListItem', url: 'https://talentmatchmakers.co/jobs/5-data-engineer', name: 'DATA ENGINEER' }
+        ]
+      };
+      const html = `<!DOCTYPE html><html><head>
+        <script type="application/ld+json">${JSON.stringify(itemList)}</script>
+        </head><body>
+        <div class="job-row"><div><h3>DATA ENGINEER</h3><span>Cluj-Napoca</span></div><a href="/jobs/5-data-engineer">View role</a></div>
+        </body></html>`;
+
+      const result = index.parseHtmlJobs(html);
+
+      expect(result.jobs).toHaveLength(1);
+      expect(result.jobs[0].url).toBe('https://talentmatchmakers.co/jobs/5-data-engineer');
     });
   });
 });

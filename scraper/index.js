@@ -8,8 +8,13 @@ import { generateJobsMarkdown } from "./markdown-generator.js";
 import companyConfig from "./config/company.js";
 
 const COMPANY_ID = companyConfig.id;
-const JOB_BASE = "https://jobs.talentmatchmakers.co";
 const CAREER_URL = companyConfig.career[0];
+const JOB_BASE = new URL(CAREER_URL).origin;
+
+function absoluteJobUrl(href) {
+  if (!href) return "";
+  return href.startsWith("http") ? href : new URL(href, JOB_BASE).href;
+}
 
 let COMPANY_NAME = null;
 
@@ -24,8 +29,71 @@ async function fetchJobsHtml() {
   return res.text();
 }
 
-function parseHtmlJobs(html) {
-  const $ = cheerio.load(html);
+function parseJsonLdItemLists($) {
+  const entries = [];
+
+  $('script[type="application/ld+json"]').each((_, el) => {
+    let data;
+    try {
+      data = JSON.parse($(el).text());
+    } catch {
+      return;
+    }
+
+    for (const node of Array.isArray(data) ? data : [data]) {
+      if (node?.["@type"] !== "ItemList" || !Array.isArray(node.itemListElement)) continue;
+      for (const item of node.itemListElement) {
+        const url = item?.url || item?.item;
+        const title = String(item?.name || "").trim();
+        if (url && title) entries.push({ url: absoluteJobUrl(url), title });
+      }
+    }
+  });
+
+  return entries;
+}
+
+function parseJobRowLocations($) {
+  const locations = new Map();
+
+  $(".job-row").each((_, el) => {
+    const $row = $(el);
+    const url = absoluteJobUrl($row.find("a[href]").first().attr("href"));
+    const rawLocation = $row.find("span").first().text().trim();
+    if (!url || !rawLocation) return;
+
+    const parsed = rawLocation
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean)
+      .filter(s => !/^(other locations?|multiple locations?)$/i.test(s));
+
+    if (parsed.length > 0) locations.set(url, parsed);
+  });
+
+  return locations;
+}
+
+function parseJobRows($) {
+  return $(".job-row").map((_, el) => {
+    const $row = $(el);
+    const title = $row.find("h3").first().text().trim();
+    const url = absoluteJobUrl($row.find("a[href]").first().attr("href"));
+    const rawLocation = $row.find("span").first().text().trim();
+
+    if (!title || !url) return null;
+
+    const location = rawLocation
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean)
+      .filter(s => !/^(other locations?|multiple locations?)$/i.test(s));
+
+    return { url, title, location, tags: [] };
+  }).get().filter(Boolean);
+}
+
+function parseTeamtailorJobs($) {
   const jobs = [];
 
   $("#jobs_list_container > li").each((_, el) => {
@@ -35,7 +103,7 @@ function parseHtmlJobs(html) {
     const title = linkEl.text().trim();
     if (!title) return;
 
-    const url = href.startsWith("http") ? href : `${JOB_BASE}${href}`;
+    const url = absoluteJobUrl(href);
 
     const spans = $li.find("span.text-base > span").map((_, span) => $(span).text().trim()).get();
 
@@ -61,6 +129,41 @@ function parseHtmlJobs(html) {
     jobs.push({ url, title, workmode, location, tags: [] });
   });
 
+  return jobs;
+}
+
+function parseHtmlJobs(html) {
+  const $ = cheerio.load(html);
+  const seen = new Set();
+  const jobs = [];
+
+  const push = (job) => {
+    if (!job || seen.has(job.url)) return;
+    seen.add(job.url);
+    jobs.push(job);
+  };
+
+  const itemListEntries = parseJsonLdItemLists($);
+  if (itemListEntries.length > 0) {
+    const rowLocations = parseJobRowLocations($);
+    for (const entry of itemListEntries) {
+      push({
+        url: entry.url,
+        title: entry.title,
+        location: rowLocations.get(entry.url) || [companyConfig.location[0]],
+        tags: []
+      });
+    }
+    return { jobs, total: jobs.length };
+  }
+
+  const rowJobs = parseJobRows($);
+  if (rowJobs.length > 0) {
+    rowJobs.forEach(push);
+    return { jobs, total: jobs.length };
+  }
+
+  parseTeamtailorJobs($).forEach(push);
   return { jobs, total: jobs.length };
 }
 
@@ -206,7 +309,7 @@ async function main() {
     const jobs = rawJobs.map(job => mapToJobModel(job, localCif));
 
     const payload = {
-      source: "jobs.talentmatchmakers.co",
+      source: "talentmatchmakers.co",
       scrapedAt: new Date().toISOString(),
       company: COMPANY_NAME,
       cif: localCif,

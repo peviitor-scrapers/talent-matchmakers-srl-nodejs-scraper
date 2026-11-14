@@ -12,7 +12,7 @@
 
 # job_seeker_ro_spider — Talent Matchmakers Romania Scraper
 
-**job_seeker_ro_spider** — un scraper pentru job-urile TALENT MATCHMAKERS S.R.L. din România. Extrage anunțurile de pe [jobs.talentmatchmakers.co](https://jobs.talentmatchmakers.co/jobs) (HTML scraping cu cheerio, single-page Teamtailor) și le publică în [peviitor.ro](https://peviitor.ro) prin API-ul SOLR.
+**job_seeker_ro_spider** — un scraper pentru job-urile TALENT MATCHMAKERS S.R.L. din România. Extrage anunțurile de pe [talentmatchmakers.co/jobs](https://talentmatchmakers.co/jobs) (HTML scraping cu cheerio, single-page, schema.org ItemList JSON-LD) și le publică în [peviitor.ro](https://peviitor.ro) prin API-ul SOLR.
 
 > **🌱 Derived scraper.** Acest repo a fost derivat din [EPAM template](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper) (HTML/cheerio, single-page).
 

@@ -2,7 +2,7 @@
 
 **job_seeker_ro_spider** — scraper pentru job-urile TALENT MATCHMAKERS S.R.L. din România.
 
-Extrage anunțurile de pe [jobs.talentmatchmakers.co](https://jobs.talentmatchmakers.co/jobs) și le publică în [peviitor.ro](https://peviitor.ro) prin API-ul SOLR.
+Extrage anunțurile de pe [talentmatchmakers.co/jobs](https://talentmatchmakers.co/jobs) și le publică în [peviitor.ro](https://peviitor.ro) prin API-ul SOLR.
 
 ## Identificare
 
@@ -19,7 +19,7 @@ job_seeker_ro_spider
    - Status: activ/inactiv/radiat
    - Adresa completă din registrul comerțului
 2. **Cross-validează cu Peviitor** — verifică existența companiei în API-ul Peviitor
-3. **Scrape-uiește job-urile** — extrage lista completă de job-uri de pe pagina Teamtailor jobs.talentmatchmakers.co, filtrat pe România
+3. **Scrape-uiește job-urile** — extrage lista completă de job-uri de pe pagina talentmatchmakers.co (schema.org ItemList JSON-LD), filtrat pe România
 4. **Transformă datele** — normalizează locațiile (doar orașe românești), tag-urile (lowercase), workmode-ul (remote/on-site/hybrid)
 5. **Stochează în SOLR** — upsert în `job` core (job-urile) și `company` core (datele companiei cu adresa completă)
 6. **Generează docs/jobs.md** — fișier markdown cu informații companie + toate job-urile curente, publicat pe [GitHub Pages](https://peviitor-scrapers.github.io/talent-matchmakers-srl-nodejs-scraper/jobs.md)
@@ -51,7 +51,7 @@ job_seeker_ro_spider
 
 | API | URL | Autentificare |
 |---|---|---|
-| Talent Matchmakers (Teamtailor) | `https://jobs.talentmatchmakers.co/jobs` | Public |
+| Talent Matchmakers (schema.org ItemList) | `https://talentmatchmakers.co/jobs` | Public |
 | ANAF (demoanaf) | `https://demoanaf.ro/api/...` | Public |
 | Peviitor | `https://api.peviitor.ro/v1/company/` | Public |
 | SOLR (job core) | `https://solr.peviitor.ro/solr/job` | `SOLR_AUTH` |
@@ -59,7 +59,7 @@ job_seeker_ro_spider
 
 ## Robots.txt
 
-Talent Matchmakers [robots.txt](https://jobs.talentmatchmakers.co/robots.txt) blochează doar `aihitdata`. `/jobs/` este permis pentru toți user-agent-ii.
+Talent Matchmakers [robots.txt](https://talentmatchmakers.co/robots.txt) blochează doar `aihitdata`. `/jobs/` este permis pentru toți user-agent-ii.
 
 Pentru analiza completă, vezi [ROBOTS.md](../ROBOTS.md).
 
