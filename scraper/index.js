@@ -361,7 +361,7 @@ async function main() {
   }
 }
 
-export { parseHtmlJobs, mapToJobModel, transformJobsForSOLR };
+export { fetchJobsHtml, parseHtmlJobs, scrapeAllListings, mapToJobModel, transformJobsForSOLR };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
