@@ -9,37 +9,27 @@
 | Status | activ |
 | Location | Mun. Cluj-Napoca |
 | Website | [https://talentmatchmakers.co](https://talentmatchmakers.co) |
-| Careers | [https://jobs.talentmatchmakers.co/jobs](https://jobs.talentmatchmakers.co/jobs) |
-| Last Scraped | 2026-10-27 |
+| Careers | [https://talentmatchmakers.co/jobs](https://talentmatchmakers.co/jobs) |
+| Last Scraped | 2026-11-14 |
 
-## Current Job Listings (4)
+## Current Job Listings (3)
 
-_Generated: 2026-10-27T11:49:33.742Z_
+_Generated: 2026-11-14T08:41:43.324Z_
 
-### BUSINESS OPERATIONS SPECIALIST
+### DATA ARCHITECT
 
-- **URL:** [https://jobs.talentmatchmakers.co/jobs/8512403-business-operations-specialist](https://jobs.talentmatchmakers.co/jobs/8512403-business-operations-specialist)
-- **Work Mode:** hybrid
+- **URL:** [https://talentmatchmakers.co/jobs/8698253-data-architect](https://talentmatchmakers.co/jobs/8698253-data-architect)
 - **Location:** Cluj-Napoca
 - **Status:** scraped
 
-### DATA ENGINEER
+### SENIOR DATA ENGINEER
 
-- **URL:** [https://jobs.talentmatchmakers.co/jobs/8492608-data-engineer](https://jobs.talentmatchmakers.co/jobs/8492608-data-engineer)
-- **Work Mode:** hybrid
-- **Location:** România
-- **Status:** scraped
-
-### HR SPECIALIST (PAYROLL)
-
-- **URL:** [https://jobs.talentmatchmakers.co/jobs/8392499-hr-specialist-payroll](https://jobs.talentmatchmakers.co/jobs/8392499-hr-specialist-payroll)
-- **Work Mode:** hybrid
+- **URL:** [https://talentmatchmakers.co/jobs/8697960-senior-data-engineer](https://talentmatchmakers.co/jobs/8697960-senior-data-engineer)
 - **Location:** Cluj-Napoca
 - **Status:** scraped
 
-### EXECUTIVE ASSISTANT (ACCOUNTING)
+### MID/SENIOR DEVOPS CONTRACTOR
 
-- **URL:** [https://jobs.talentmatchmakers.co/jobs/7872505-executive-assistant-accounting](https://jobs.talentmatchmakers.co/jobs/7872505-executive-assistant-accounting)
-- **Work Mode:** hybrid
+- **URL:** [https://talentmatchmakers.co/jobs/8662295-mid-senior-devops-contractor](https://talentmatchmakers.co/jobs/8662295-mid-senior-devops-contractor)
 - **Location:** Cluj-Napoca
 - **Status:** scraped
